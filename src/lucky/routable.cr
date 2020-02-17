@@ -173,6 +173,12 @@ module Lucky::Routable
           params.get(:{{ part }})
         end
       {% end %}
+      {% if part.starts_with?("*") %}
+        {% part = part.gsub(/*/, "").id %}
+        def {{ part }} : String
+          params.get(*{{ part }})
+        end
+      {% end %}
     {% end %}
 
     def self.path(*args, **named_args) : String
