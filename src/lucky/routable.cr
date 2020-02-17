@@ -164,7 +164,7 @@ module Lucky::Routable
     Lucky::Router.add({{ method }}, {{ path }}, {{ @type.name.id }})
 
     {% path_parts = path.split("/").reject(&.empty?) %}
-    {% path_params = path_parts.select(&.starts_with?(":")) %}
+    {% path_params = path_parts.select { |p| p.starts_with?(":") || p.starts_with?("*") } %}
 
     {% for part in path_parts %}
       {% if part.starts_with?(":") %}
@@ -191,12 +191,12 @@ module Lucky::Routable
 
     def self.url_without_query_params(
     {% for param in path_params %}
-      {{ param.gsub(/:/, "").id }},
+      {{ param.gsub(/[:\*]/, "").id }},
     {% end %}
     )
       path = path_from_parts(
         {% for param in path_params %}
-          {{ param.gsub(/:/, "").id }},
+          {{ param.gsub(/[:\*]/, "").id }},
         {% end %}
       )
       Lucky::RouteHelper.new({{ method }}, path).url
@@ -204,7 +204,7 @@ module Lucky::Routable
 
     def self.route(
     {% for param in path_params %}
-      {{ param.gsub(/:/, "").id }},
+      {{ param.gsub(/[:\*]/, "").id }},
     {% end %}
 
     {% params_with_defaults = PARAM_DECLARATIONS.select do |decl|
@@ -222,7 +222,7 @@ module Lucky::Routable
       ) : Lucky::RouteHelper
       path = path_from_parts(
         {% for param in path_params %}
-          {{ param.gsub(/:/, "").id }},
+          {{ param.gsub(/[:\*]/, "").id }},
         {% end %}
       )
       query_params = {} of String => String
@@ -259,7 +259,7 @@ module Lucky::Routable
 
     private def self.path_from_parts(
         {% for param in path_params %}
-          {{ param.gsub(/:/, "").id }},
+          {{ param.gsub(/[:\*]/, "").id }},
         {% end %}
     )
       path = String.build do |path|
@@ -267,6 +267,8 @@ module Lucky::Routable
           path << "/"
           {% if part.starts_with?(":") %}
             path << URI.encode_www_form({{ part.gsub(/:/, "").id }}.to_param)
+          {% elsif part.starts_with?("*") %}
+            path << URI.encode_www_form({{ part.gsub(/\*/, "").id }}.to_param)
           {% else %}
             path << URI.encode_www_form({{ part }})
           {% end %}
