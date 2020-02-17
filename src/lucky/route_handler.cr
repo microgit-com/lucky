@@ -7,7 +7,7 @@ class Lucky::RouteHandler
     handler = Lucky::Router.find_action(context.request)
     if handler
       Lucky.logger.debug({handled_by: handler.payload.to_s})
-      handler.payload.new(context, handler.params).perform_action
+      handler.payload.try &.new(context, handler.params).perform_action
     else
       call_next(context)
     end
