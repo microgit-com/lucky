@@ -14,7 +14,6 @@ describe Lucky::Router do
 
     Lucky::Router.find_action(:get, "/test2").found?.should eq(false)
     Lucky::Router.find_action("get", "/test2").found?.should eq(false)
-    puts Lucky::Router.find_action(:post, "/test2").payload
     Lucky::Router.find_action(:post, "/test2").found?.should eq(true)
   end
 
