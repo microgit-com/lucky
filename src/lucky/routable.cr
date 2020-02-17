@@ -174,7 +174,7 @@ module Lucky::Routable
         end
       {% end %}
       {% if part.starts_with?("*") %}
-        {% part = part.gsub(/*/, "").id %}
+        {% part = part.gsub(/\*/, "").id %}
         def {{ part }} : String
           params.get(*{{ part }})
         end
